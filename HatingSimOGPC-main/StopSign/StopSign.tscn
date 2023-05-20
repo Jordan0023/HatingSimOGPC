@@ -1,0 +1,332 @@
+[gd_scene load_steps=20 format=2]
+
+[ext_resource path="res://Assets/Button Design.PNG" type="Texture" id=1]
+[ext_resource path="res://StopSign/StopSignDialogue.gd" type="Script" id=2]
+[ext_resource path="res://Hallway1.PNG" type="Texture" id=3]
+[ext_resource path="res://StopSign/Stop_Sign_Happy.PNG" type="Texture" id=4]
+[ext_resource path="res://Assets/Acme-Regular.ttf" type="DynamicFontData" id=5]
+
+[sub_resource type="GDScript" id=5]
+script/source = "extends Control
+
+onready var text = get_parent().get_node(\"StopSignDialogue\").dialogue_1
+
+var test = 4
+
+var neutral_expression = preload(\"res://StopSign/Stop_Sign_Neutral.PNG\")
+var mad_expression = preload(\"res://StopSign/Stop_Sign_Mad.PNG\")
+var happy_expression = preload(\"res://StopSign/Stop_Sign_Happy.PNG\")
+
+var dialogue_index = 0
+var finished
+var active
+
+var position
+var expression
+
+var love = 0
+
+var hate = 0
+
+var choiceNum1 = [0, 3, 6, 9]
+
+var num = 1
+
+var choiceNum2 = [1, 4, 7, 10]
+
+var choiceNum3 = [2, 5, 8, 11]
+
+var choiceIndex = 0
+
+func _ready():
+	load_dialogue()
+	
+		# get_tree().change_scene(\"res://current_scene.tscn\")
+	
+func _physics_process(delta):
+	if active:
+		if Input.is_action_just_pressed(\"ui_accept\"):
+			if finished == true:
+				load_dialogue()
+			else:
+				$TextBox/Tween.stop_all()
+				$TextBox/RichTextLabel.percent_visible = 1
+				finished = true
+		
+		if $TextBox/Label.text == \"Stop\":
+			$Stop.visible = true
+			if position == \"2\":
+				$Stop.global_position = get_parent().get_node(\"2\").position
+				
+			if expression == \"Mad\":
+				$Stop.texture = mad_expression
+			elif expression == \"Happy\":
+				$Stop.texture = happy_expression
+			else:
+				$Stop.texture = neutral_expression
+				
+		if $Button1.text == \"\":
+			$Button1.visible = false 
+		else:
+			$Button1.visible = true
+			
+		if $Button2.text == \"\":
+			$Button2.visible = false 
+		else:
+			$Button2.visible = true
+			
+		if $Button3.text == \"\":
+			$Button3.visible = false 
+		else:
+			$Button3.visible = true
+
+func load_dialogue():
+	if dialogue_index < test:
+		active = true
+		finished = false
+
+		$TextBox.visible = true
+		
+		if dialogue_index == 1 && hate >= 2:
+			print(\"hi\")
+			get_tree().change_scene(\"res://Victory/Victory.tscn\")
+		elif dialogue_index == 1 && love >= 2:
+			get_tree().change_scene(\"res://GameOver/GameOver.tscn\")
+		else:
+			$TextBox/RichTextLabel.bbcode_text = text[dialogue_index][\"Text\"]
+			$TextBox/Label.text = text[dialogue_index][\"Name\"]
+			$Button1.text = text[dialogue_index][\"Choices\"][0]
+			$Button2.text = text[dialogue_index][\"Choices\"][1]
+			$Button3.text = text[dialogue_index][\"Choices\"][2]
+
+			position = text[dialogue_index][\"Position\"]
+			expression = text[dialogue_index][\"Expression\"]
+			
+			$TextBox/RichTextLabel.percent_visible = 0
+			$TextBox/Tween.interpolate_property(
+			$TextBox/RichTextLabel, \"percent_visible\", 0, 1, 2,
+			Tween.TRANS_LINEAR, Tween.EASE_IN_OUT
+				
+		)
+		$TextBox/Tween.start()
+	else:
+		$TextBox.visible = false
+		finished = true 
+		active = false
+	dialogue_index += 1
+		# text = get_parent().get_node(\"Dialogue\").dialogue_2
+		# get_tree().change_scene(\"res://HatingSim2.tscn\")
+func _on_Tween_tween_completed(object, key):
+	finished = true
+
+func points():
+	print(love)
+	if hate >= 2:
+		text = get_parent().get_node(\"StopSignDialogue\").succeed
+		
+	else: 
+		text = get_parent().get_node(\"StopSignDialogue\").fail
+		
+
+func _on_Button1_pressed():
+	text = get_parent().get_node(\"StopSignDialogue\").choices[num][0]
+	dialogue_index = 0
+	
+	if num == 1:
+		love += 1
+	elif num == 2:
+		hate += 1
+	elif num == 3:
+		love += 1
+		points()
+	elif num == 4:
+		hate += 1
+		points()
+	load_dialogue()
+	num += 1
+	
+func _on_Button2_pressed():
+	text = get_parent().get_node(\"StopSignDialogue\").choices[num][1]
+	dialogue_index = 0
+	
+	if num == 1:
+		print(\"b\")
+		love += 1
+	elif num == 2:
+		love += 1
+	elif num == 3:
+		hate += 1
+		points()
+	elif num == 4:
+		love += 1
+		points()
+	load_dialogue()
+	num += 1
+		
+func _on_Button3_pressed():
+	text = get_parent().get_node(\"StopSignDialogue\").choices[num][2]
+	dialogue_index = 0
+	#points(3)
+	if num == 1:
+		hate += 1
+	elif num == 2:
+		love += 1
+	elif num == 3:
+		hate += 1
+		points()
+	elif num == 4:
+		love += 1
+		points()
+	load_dialogue()
+		
+	num += 1
+
+	
+"
+
+[sub_resource type="DynamicFont" id=1]
+size = 30
+font_data = ExtResource( 5 )
+
+[sub_resource type="DynamicFont" id=2]
+size = 15
+font_data = ExtResource( 5 )
+
+[sub_resource type="StyleBoxTexture" id=6]
+texture = ExtResource( 1 )
+region_rect = Rect2( 0, 0, 2732, 2048 )
+
+[sub_resource type="StyleBoxTexture" id=7]
+texture = ExtResource( 1 )
+region_rect = Rect2( 0, 0, 2732, 2048 )
+
+[sub_resource type="StyleBoxTexture" id=8]
+texture = ExtResource( 1 )
+region_rect = Rect2( 0, 0, 2732, 2048 )
+
+[sub_resource type="StyleBoxTexture" id=9]
+texture = ExtResource( 1 )
+region_rect = Rect2( 0, 0, 2732, 2048 )
+
+[sub_resource type="StyleBoxTexture" id=10]
+texture = ExtResource( 1 )
+region_rect = Rect2( 0, 0, 2732, 2048 )
+
+[sub_resource type="DynamicFont" id=4]
+size = 15
+font_data = ExtResource( 5 )
+
+[sub_resource type="StyleBoxTexture" id=11]
+texture = ExtResource( 1 )
+region_rect = Rect2( 0, 0, 2732, 2048 )
+
+[sub_resource type="StyleBoxTexture" id=12]
+texture = ExtResource( 1 )
+region_rect = Rect2( 0, 0, 2732, 2048 )
+
+[sub_resource type="StyleBoxTexture" id=13]
+texture = ExtResource( 1 )
+region_rect = Rect2( 0, 0, 2732, 2048 )
+
+[sub_resource type="StyleBoxTexture" id=14]
+texture = ExtResource( 1 )
+region_rect = Rect2( 0, 0, 2732, 2048 )
+
+[sub_resource type="StyleBoxTexture" id=15]
+texture = ExtResource( 1 )
+region_rect = Rect2( 0, 0, 2732, 2048 )
+
+[node name="StopSign" type="Node2D"]
+position = Vector2( -1616, -960 )
+
+[node name="StopSignDialogue" type="Node2D" parent="."]
+position = Vector2( 2120, 1264 )
+script = ExtResource( 2 )
+
+[node name="2" type="Position2D" parent="."]
+position = Vector2( 2128, 1272 )
+
+[node name="Hallway1" type="Sprite" parent="."]
+position = Vector2( 2128, 1248 )
+scale = Vector2( 0.253968, 0.195767 )
+texture = ExtResource( 3 )
+
+[node name="StopSignControl" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = SubResource( 5 )
+
+[node name="TextBox" type="ColorRect" parent="StopSignControl"]
+margin_left = 1680.0
+margin_top = 1376.0
+margin_right = 2576.0
+margin_bottom = 1520.0
+color = Color( 1, 1, 1, 0.690196 )
+
+[node name="RichTextLabel" type="RichTextLabel" parent="StopSignControl/TextBox"]
+modulate = Color( 0, 0, 0, 1 )
+margin_left = 16.0
+margin_top = 24.0
+margin_right = 880.0
+margin_bottom = 128.0
+rect_pivot_offset = Vector2( 136, 48 )
+
+[node name="Tween" type="Tween" parent="StopSignControl/TextBox"]
+
+[node name="Label" type="Label" parent="StopSignControl/TextBox"]
+margin_left = 8.0
+margin_top = -40.0
+margin_right = 112.0
+margin_bottom = -1.0
+custom_colors/font_color = Color( 1, 1, 1, 1 )
+custom_fonts/font = SubResource( 1 )
+text = "Name"
+
+[node name="Button1" type="Button" parent="StopSignControl"]
+margin_left = 1616.0
+margin_top = 1152.0
+margin_right = 2000.0
+margin_bottom = 1344.0
+custom_fonts/font = SubResource( 2 )
+custom_styles/hover = SubResource( 6 )
+custom_styles/pressed = SubResource( 7 )
+custom_styles/focus = SubResource( 8 )
+custom_styles/disabled = SubResource( 9 )
+custom_styles/normal = SubResource( 10 )
+text = "Choice 1"
+
+[node name="Button2" type="Button" parent="StopSignControl"]
+margin_left = 1952.0
+margin_top = 960.0
+margin_right = 2336.0
+margin_bottom = 1160.0
+custom_fonts/font = SubResource( 4 )
+custom_styles/hover = SubResource( 11 )
+custom_styles/pressed = SubResource( 12 )
+custom_styles/focus = SubResource( 13 )
+custom_styles/disabled = SubResource( 14 )
+custom_styles/normal = SubResource( 15 )
+text = "Choice 2"
+
+[node name="Button3" type="Button" parent="StopSignControl"]
+margin_left = 2272.0
+margin_top = 1144.0
+margin_right = 2656.0
+margin_bottom = 1344.0
+custom_fonts/font = SubResource( 4 )
+custom_styles/hover = SubResource( 11 )
+custom_styles/pressed = SubResource( 12 )
+custom_styles/focus = SubResource( 13 )
+custom_styles/disabled = SubResource( 14 )
+custom_styles/normal = SubResource( 15 )
+text = "Choice 2"
+
+[node name="Stop" type="Sprite" parent="StopSignControl"]
+position = Vector2( 2128, 1256 )
+scale = Vector2( 0.101562, 0.0937042 )
+texture = ExtResource( 4 )
+
+[connection signal="tween_completed" from="StopSignControl/TextBox/Tween" to="StopSignControl" method="_on_Tween_tween_completed"]
+[connection signal="pressed" from="StopSignControl/Button1" to="StopSignControl" method="_on_Button1_pressed"]
+[connection signal="pressed" from="StopSignControl/Button2" to="StopSignControl" method="_on_Button2_pressed"]
+[connection signal="pressed" from="StopSignControl/Button3" to="StopSignControl" method="_on_Button3_pressed"]
